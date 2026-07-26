@@ -1975,8 +1975,9 @@
     return prefix;
   }
 
-  // Real hOCG release order, oldest first. Unknown/future set codes fall back
-  // to alphabetical order after everything in this list.
+  // Real hOCG release order, oldest first — used only for sets outside the
+  // hBP/hSD families (Yell cards, promos, etc). Unknown/future codes fall
+  // back to alphabetical order after everything in this list.
   const SET_ORDER = [
     "hYS01", "hSD01", "hBP01", "hSD02", "hSD03", "hSD04", "hBP02",
     "hSD05", "hSD06", "hSD07", "hBP03", "hPC01", "hBP04", "hCS01",
@@ -1986,15 +1987,33 @@
     "hPR", "hSY",
   ];
 
+  function familyRank(setCode) {
+    if (/^hBP/.test(setCode)) return 0; // all booster packs first
+    if (/^hSD/.test(setCode)) return 1; // then all starter decks
+    return 2; // everything else (Yell, promos, etc.)
+  }
+
+  function trailingNumber(setCode) {
+    const m = setCode.match(/(\d+)$/);
+    return m ? parseInt(m[1], 10) : -1;
+  }
+
   function getSets() {
     const unique = Array.from(new Set(getAllCards().map(cardSet)));
     return unique.sort((a, b) => {
-      const ia = SET_ORDER.indexOf(a);
-      const ib = SET_ORDER.indexOf(b);
-      if (ia === -1 && ib === -1) return a.localeCompare(b);
-      if (ia === -1) return -1;
-      if (ib === -1) return 1;
-      return ib - ia;
+      const fa = familyRank(a);
+      const fb = familyRank(b);
+      if (fa !== fb) return fa - fb;
+      if (fa === 2) {
+        const ia = SET_ORDER.indexOf(a);
+        const ib = SET_ORDER.indexOf(b);
+        if (ia === -1 && ib === -1) return a.localeCompare(b);
+        if (ia === -1) return -1;
+        if (ib === -1) return 1;
+        return ib - ia;
+      }
+      // Within hBP or hSD: newest (highest number) first
+      return trailingNumber(b) - trailingNumber(a);
     });
   }
 
@@ -2004,6 +2023,12 @@
 
   function getQty(number) {
     return (ownership[number] && ownership[number].qty) || 1;
+  }
+
+  function cardNumberParts(number) {
+    const m = number.match(/^(h[A-Za-z0-9]*?)-(\d+)(?:-P(\d+))?$/);
+    if (!m) return { prefix: number, num: 0, para: 0 };
+    return { prefix: m[1], num: parseInt(m[2], 10), para: m[3] ? parseInt(m[3], 10) : 0 };
   }
 
   function getFiltered() {
@@ -2020,6 +2045,12 @@
         if (!hay.includes(q)) return false;
       }
       return true;
+    }).sort((a, b) => {
+      const pa = cardNumberParts(a.number);
+      const pb = cardNumberParts(b.number);
+      if (pa.prefix !== pb.prefix) return pa.prefix.localeCompare(pb.prefix);
+      if (pa.num !== pb.num) return pa.num - pb.num;
+      return pa.para - pb.para;
     });
   }
 
