@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Oshi Binder — HoloTCG Collection Database</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrap">
+  <div class="header">
+    <div>
+      <div class="title-row">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+        <span class="title">Oshi Binder</span>
+      </div>
+      <div class="subtitle">推しバインダー — HoloTCG collection database</div>
+      <div class="sync-status" id="syncStatus">Connecting…</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-value" id="statOwned" style="color: var(--teal)">0</div><div class="stat-label">OWNED</div></div>
+      <div class="stat"><div class="stat-value" id="statTotal" style="color: var(--pink)">0</div><div class="stat-label">IN DATABASE</div></div>
+      <div class="stat"><div class="stat-value" id="statPct" style="color: var(--violet)">0%</div><div class="stat-label">COMPLETE</div></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Now covering all 12 sets:</strong> hSD11 (Niko), hSD12 (Advent), hSD17 (Suisei), hBP01–hBP08 (Set 1 through Set 8) — including foil/parallel variants, tracked as separate entries since they're separate physical cards. Sets 2–5 are missing a small number of parallel-print entries from manual transcription of very large pages — see chat for the exact gaps found. <strong>Card art:</strong> upload the <code>images</code> folder (from the images.zip I sent) into your GitHub repo alongside <code>index.html</code> — about 769 of your 1763 cards have matching art; the rest still show as plain tiles.
+  </div>
+
+  <div class="controls">
+    <div class="search-box">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8D89A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input id="searchInput" placeholder="Search name or card number" />
+    </div>
+    <select id="rarityFilter">
+      <option value="All">All rarities</option>
+    </select>
+    <div class="seg" id="ownFilter">
+      <button data-val="All" class="active">All</button>
+      <button data-val="Owned">Owned</button>
+      <button data-val="Missing">Missing</button>
+    </div>
+    <button class="btn-add" id="openAddCardBtn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Add card
+    </button>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="binder-page">
+    <div id="content"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addCardOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add a card manually</span>
+      <button class="modal-close" id="closeAddCardBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Card number</div>
+      <input id="fNumber" placeholder="e.g. hBP08-042" autofocus />
+    </div>
+
+    <div class="field">
+      <div class="field-label">Name</div>
+      <input id="fName" placeholder="Card name" />
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <div class="field-label">Type</div>
+        <input id="fType" list="typeSuggestions" placeholder="e.g. ホロメン" />
+        <datalist id="typeSuggestions"></datalist>
+      </div>
+      <div class="field">
+        <div class="field-label">Rarity</div>
+        <input id="fRarity" list="raritySuggestions" placeholder="e.g. RR" />
+        <datalist id="raritySuggestions"></datalist>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Color</div>
+      <select id="fColor">
+        <option value="無">無 (colorless / N/A)</option>
+        <option value="白">白 White</option>
+        <option value="緑">緑 Green</option>
+        <option value="赤">赤 Red</option>
+        <option value="青">青 Blue</option>
+        <option value="紫">紫 Purple</option>
+        <option value="黄">黄 Yellow</option>
+      </select>
+    </div>
+
+    <button class="btn-submit disabled" id="submitAddCardBtn">Add to binder</button>
+  </div>
+</div>
+
+<script type="module" src="script.js"></script>
+
+</body>
+</html>
