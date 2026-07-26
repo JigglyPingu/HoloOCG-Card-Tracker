@@ -106,6 +106,7 @@
   .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
   .pocket-number { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
   .pocket-name { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 14px; line-height: 1.25; }
+  .pocket-name-en { font-size: 10.5px; color: var(--text-muted); margin-top: -4px; font-family: 'Inter', sans-serif; }
   .pocket-type { font-size: 11px; color: var(--text-muted); }
   .pocket-footer {
     display: flex; justify-content: space-between; align-items: center; margin-top: auto;
