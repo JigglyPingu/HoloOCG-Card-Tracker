@@ -1031,6 +1031,13 @@
     { number: "hY01-001", name: "白エール", type: "エール", rarity: "C", color: "白" },
     { number: "hY02-001", name: "緑エール", type: "エール", rarity: "C", color: "緑" },
     { number: "hY03-001", name: "赤エール", type: "エール", rarity: "C", color: "赤" },
+
+    // From ogbajoj hOCG translation sheet — hBP01 pass, 1 gap filled
+    { number: "hBP01-041", name: "兎田ぺこら", type: "ホロメン", rarity: "U", color: "緑" },
+
+    // From ogbajoj hOCG translation sheet — hBP02 pass, 2 gaps filled
+    { number: "hBP02-016", name: "白銀ノエル", type: "ホロメン", rarity: "U", color: "白" },
+    { number: "hBP02-031", name: "宝鐘マリン", type: "ホロメン", rarity: "U", color: "赤" },
   ];
 
     const ENGLISH_NAMES = {
