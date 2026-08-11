@@ -19,6 +19,7 @@
       </div>
       <div class="subtitle">推しバインダー — HoloTCG collection database</div>
       <div class="sync-status" id="syncStatus">Connecting…</div>
+      <button class="auth-link" id="authLinkBtn">Sign in to edit</button>
     </div>
     <div class="stats">
       <div class="stat"><div class="stat-value" id="statOwned" style="color: var(--teal)">0</div><div class="stat-label">OWNED</div></div>
@@ -47,6 +48,10 @@
     <button class="btn-add" id="openAddCardBtn">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
       Add card
+    </button>
+    <button class="btn-secondary" id="exportBackupBtn" title="Download a backup of your collection">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      Backup
     </button>
   </div>
 
@@ -103,6 +108,35 @@
     </div>
 
     <button class="btn-submit disabled" id="submitAddCardBtn">Add to binder</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="authOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="authModalTitle">Sign in to edit</span>
+      <button class="modal-close" id="closeAuthBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <div id="authSignedOutView">
+      <div class="field">
+        <div class="field-label">Email</div>
+        <input id="authEmail" type="email" placeholder="you@example.com" autofocus />
+      </div>
+      <div class="field">
+        <div class="field-label">Password</div>
+        <input id="authPassword" type="password" placeholder="••••••••" />
+      </div>
+      <div class="field-error" id="authError"></div>
+      <button class="btn-submit enabled" id="submitAuthBtn">Sign in</button>
+    </div>
+
+    <div id="authSignedInView" style="display:none;">
+      <p class="auth-signed-in-text">You're signed in — editing is enabled on this device.</p>
+      <button class="btn-submit enabled" id="signOutBtn">Sign out</button>
+    </div>
   </div>
 </div>
 

@@ -36,6 +36,26 @@
   .sync-status.ok { color: var(--teal); }
   .sync-status.pending { color: var(--text-muted); }
   .sync-status.error { color: var(--pink); }
+
+  .auth-link {
+    background: transparent; border: none; color: var(--text-muted); font-size: 11px;
+    text-decoration: underline; cursor: pointer; padding: 0; margin-top: 3px; font-family: 'Inter', sans-serif;
+  }
+  .auth-link:hover { color: var(--teal); }
+  .auth-link.signed-in { color: var(--teal); text-decoration: none; }
+  .auth-signed-in-text { font-size: 13px; color: var(--text-muted); margin: 0 0 14px; line-height: 1.5; }
+  .field-error { font-size: 12px; color: var(--pink); min-height: 16px; margin: -4px 0 10px; }
+
+  .btn-secondary {
+    display: flex; align-items: center; gap: 6px; background: var(--panel); color: var(--text);
+    border: 1px solid var(--border); border-radius: 10px; padding: 9px 14px; font-weight: 600; font-size: 13px;
+    cursor: pointer; font-family: 'Inter', sans-serif;
+  }
+  .btn-secondary:hover { background: var(--panel-hover); }
+
+  .pocket.readonly .own-toggle,
+  .pocket.readonly .qty-btn { pointer-events: none; opacity: 0.55; }
+  .pocket.readonly .pocket-delete { display: none; }
   .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
   .stats { display: flex; gap: 18px; }
   .stat { text-align: right; }

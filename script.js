@@ -1,5 +1,5 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -14,14 +14,29 @@
   const firebaseApp = initializeApp(firebaseConfig);
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
-  // All devices read/write this one fixed document — see chat notes on what
-  // this means for privacy (anyone with the site URL could read/edit it).
+  // All devices read this one fixed document; only a signed-in (password)
+  // account can write to it — see the Firestore rules for the actual gate.
   const BINDER_DOC_REF = doc(db, "binder", "shared");
+
+  let canEdit = false;
 
   function setSyncStatus(state, label) {
     const el = document.getElementById("syncStatus");
     el.className = "sync-status " + state;
     el.innerHTML = `<span class="sync-dot"></span>${label}`;
+  }
+
+  function todayKey() {
+    return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  }
+
+  function applyEditability() {
+    const authBtn = document.getElementById("authLinkBtn");
+    const addBtn = document.getElementById("openAddCardBtn");
+    authBtn.textContent = canEdit ? "Signed in ✓" : "Sign in to edit";
+    authBtn.className = "auth-link" + (canEdit ? " signed-in" : "");
+    addBtn.style.display = canEdit ? "" : "none";
+    renderContent();
   }
 
   const FOIL_RARITIES = new Set(["OSR", "SEC", "OUR", "UR", "SY", "HR", "SR"]);
@@ -1951,11 +1966,17 @@
 
   function saveBinderData() {
     cacheLocally();
+    if (!canEdit) return; // shouldn't happen from the UI, but safety net
     setSyncStatus("pending", "Saving…");
     clearTimeout(saveTimer);
     saveTimer = setTimeout(async () => {
       try {
-        await setDoc(BINDER_DOC_REF, { ownership, customCards, updatedAt: Date.now() });
+        const payload = { ownership, customCards, updatedAt: Date.now() };
+        await setDoc(BINDER_DOC_REF, payload);
+        // Rolling daily backup — one doc per calendar day, overwritten with
+        // the latest state each time something saves that day. Older days
+        // are left untouched, so this builds up a simple history over time.
+        setDoc(doc(db, "binder_backups", todayKey()), payload).catch(() => {});
         setSyncStatus("ok", "Synced");
       } catch (e) {
         setSyncStatus("error", "Couldn't sync — saved on this device only");
@@ -2130,8 +2151,8 @@
 
     return `
       <div class="pocket-wrap ${isFoil ? "foil" : ""} ${owned ? "owned" : "missing"}">
-        <div class="pocket ${owned ? "" : "missing"}">
-          ${custom ? `
+        <div class="pocket ${owned ? "" : "missing"} ${canEdit ? "" : "readonly"}">
+          ${custom && canEdit ? `
             <button class="pocket-delete" data-delete-custom="${card.number}" title="Remove this card">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
@@ -2171,6 +2192,7 @@
   }
 
   function toggleOwned(number) {
+    if (!canEdit) return;
     const current = isOwned(number);
     ownership[number] = { owned: !current, qty: current ? 0 : 1 };
     saveBinderData();
@@ -2178,6 +2200,7 @@
   }
 
   function changeQty(number, delta) {
+    if (!canEdit) return;
     const entry = ownership[number] || { owned: true, qty: 1 };
     entry.qty = Math.max(1, (entry.qty || 1) + delta);
     entry.owned = true;
@@ -2187,6 +2210,7 @@
   }
 
   function deleteCustomCard(number) {
+    if (!canEdit) return;
     customCards = customCards.filter((c) => c.number !== number);
     delete ownership[number];
     saveBinderData();
@@ -2229,6 +2253,7 @@
   }
 
   function submitAddCard() {
+    if (!canEdit) return;
     const number = document.getElementById("fNumber").value.trim();
     const name = document.getElementById("fName").value.trim();
     if (!number || !name) return;
@@ -2287,20 +2312,74 @@
   document.getElementById("fName").addEventListener("input", updateAddCardSubmitState);
   document.getElementById("submitAddCardBtn").addEventListener("click", submitAddCard);
 
+  // ---- Auth (sign-in controls edit access; reading never requires it) ----
+  function openAuthModal() {
+    document.getElementById("authError").textContent = "";
+    document.getElementById("authOverlay").classList.add("open");
+    const signedIn = !!auth.currentUser;
+    document.getElementById("authSignedOutView").style.display = signedIn ? "none" : "";
+    document.getElementById("authSignedInView").style.display = signedIn ? "" : "none";
+    if (!signedIn) document.getElementById("authEmail").focus();
+  }
+  function closeAuthModal() {
+    document.getElementById("authOverlay").classList.remove("open");
+  }
+  async function submitAuth() {
+    const email = document.getElementById("authEmail").value.trim();
+    const password = document.getElementById("authPassword").value;
+    const errEl = document.getElementById("authError");
+    errEl.textContent = "";
+    if (!email || !password) { errEl.textContent = "Enter both email and password."; return; }
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      closeAuthModal();
+    } catch (e) {
+      errEl.textContent = "Couldn't sign in — check your email and password.";
+    }
+  }
+
+  document.getElementById("authLinkBtn").addEventListener("click", openAuthModal);
+  document.getElementById("closeAuthBtn").addEventListener("click", closeAuthModal);
+  document.getElementById("authOverlay").addEventListener("click", (e) => {
+    if (e.target.id === "authOverlay") closeAuthModal();
+  });
+  document.getElementById("submitAuthBtn").addEventListener("click", submitAuth);
+  document.getElementById("authPassword").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submitAuth();
+  });
+  document.getElementById("signOutBtn").addEventListener("click", async () => {
+    await signOut(auth);
+    closeAuthModal();
+  });
+
+  // ---- Export backup (downloads a local copy of the current collection) ----
+  function exportBackup() {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      ownership,
+      customCards,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `oshi-binder-backup-${todayKey()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+  document.getElementById("exportBackupBtn").addEventListener("click", exportBackup);
+
   // ---- Init ----
   setSyncStatus("pending", "Connecting…");
   loadNameSheet();
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) return;
-    await loadBinderData();
+  applyEditability();
+  loadBinderData().then(() => {
     renderRarityFilterOptions();
     renderAll();
   });
-  signInAnonymously(auth).catch(() => {
-    // No auth, no network — fall back to whatever's cached on this device
-    // so the app is still usable offline.
-    loadFromLocalCache();
-    setSyncStatus("error", "Offline — showing last saved copy");
-    renderRarityFilterOptions();
-    renderAll();
+  onAuthStateChanged(auth, (user) => {
+    canEdit = !!user;
+    applyEditability();
   });
