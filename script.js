@@ -1,6 +1,6 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB3oy1AZaIlbM5TdFs-mmNb_F-RcqBHZN0",
@@ -1911,25 +1911,41 @@
 
   let saveTimer = null;
 
-  async function loadBinderData() {
-    try {
-      const snap = await getDoc(BINDER_DOC_REF);
-      if (snap.exists()) {
-        const data = snap.data();
-        ownership = data.ownership || {};
-        customCards = data.customCards || [];
-      } else {
-        ownership = {};
-        customCards = [];
+  let firstSnapshotReceived = false;
+
+  function startLiveSync() {
+    onSnapshot(
+      BINDER_DOC_REF,
+      (snap) => {
+        if (snap.exists()) {
+          const data = snap.data();
+          ownership = data.ownership || {};
+          customCards = data.customCards || [];
+        } else {
+          ownership = {};
+          customCards = [];
+        }
+        cacheLocally();
+        setSyncStatus("ok", snap.metadata.hasPendingWrites ? "Saving…" : "Synced");
+        if (!firstSnapshotReceived) {
+          firstSnapshotReceived = true;
+          renderRarityFilterOptions();
+        }
+        renderAll();
+      },
+      () => {
+        // Offline or unreachable — fall back to whatever was last cached on
+        // this device so the app still works; it'll pick back up live once
+        // the connection returns, no action needed here.
+        loadFromLocalCache();
+        setSyncStatus("error", "Offline — showing last saved copy");
+        if (!firstSnapshotReceived) {
+          firstSnapshotReceived = true;
+          renderRarityFilterOptions();
+          renderAll();
+        }
       }
-      cacheLocally();
-      setSyncStatus("ok", "Synced");
-    } catch (e) {
-      // Fall back to whatever was last cached on this device so the app
-      // still works offline; local changes will sync up next time it connects.
-      loadFromLocalCache();
-      setSyncStatus("error", "Offline — showing last saved copy");
-    }
+    );
   }
 
   function loadFromLocalCache() {
@@ -2375,10 +2391,7 @@
   setSyncStatus("pending", "Connecting…");
   loadNameSheet();
   applyEditability();
-  loadBinderData().then(() => {
-    renderRarityFilterOptions();
-    renderAll();
-  });
+  startLiveSync();
   onAuthStateChanged(auth, (user) => {
     canEdit = !!user;
     applyEditability();
