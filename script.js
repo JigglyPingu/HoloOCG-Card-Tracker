@@ -1380,6 +1380,23 @@
   }
 
   const CARD_IMAGES = {
+    // Filled in from JPingu's own saved scans — final 16 missing Set 7 cards
+    "hBP07-070": "hBP07-070_0.webp",
+    "hBP07-061": "hBP07-061_0.webp",
+    "hBP07-043": "hBP07-043_0.webp",
+    "hBP07-022": "hBP07-022_0.webp",
+    "hBP07-060": "hBP07-060_0.webp",
+    "hBP07-049": "hBP07-049_0.webp",
+    "hBP07-047": "hBP07-047_0.webp",
+    "hBP07-058": "hBP07-058_0.webp",
+    "hBP07-059": "hBP07-059_0.webp",
+    "hBP07-075": "hBP07-075_0.webp",
+    "hBP07-057": "hBP07-057_0.webp",
+    "hBP07-076": "hBP07-076_0.webp",
+    "hBP07-031": "hBP07-031_0.webp",
+    "hBP07-062": "hBP07-062_0.webp",
+    "hBP07-085": "hBP07-085_0.webp",
+    "hBP07-084": "hBP07-084_0.webp",
     // Filled in from JPingu's EN-art scans — hSD03/04 shared reprints + hSD12 (14 total)
     "hSD03-002": "hSD03-002_0.webp",
     "hSD04-002": "hSD04-002_0.webp",
