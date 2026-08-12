@@ -57,6 +57,13 @@
   .pocket.readonly .qty-btn { pointer-events: none; opacity: 0.55; }
   .pocket.readonly .pocket-delete { display: none; }
   .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .stats-wrap { display: flex; align-items: flex-start; gap: 12px; }
+  .stats-toggle {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text-muted); cursor: pointer; padding: 7px; display: flex; align-items: center; justify-content: center;
+  }
+  .stats-toggle:hover { color: var(--teal); border-color: var(--teal); }
+  .stats-toggle.active { color: var(--teal); border-color: var(--teal); background: rgba(94,234,212,0.08); }
   .stats { display: flex; gap: 18px; }
   .stat { text-align: right; }
   .stat-value { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; }
@@ -79,6 +86,11 @@
     background: transparent; border: none; outline: none; color: var(--text);
     font-size: 14px; width: 100%; font-family: 'Inter', sans-serif;
   }
+  .search-clear {
+    background: transparent; border: none; color: var(--text-muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 2px;
+  }
+  .search-clear:hover { color: var(--text); }
   select {
     background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
     padding: 9px 10px; color: var(--text); font-size: 13px; outline: none; font-family: 'Inter', sans-serif;
@@ -149,6 +161,16 @@
     background: var(--panel); border: 1px solid var(--border); border-radius: 5px; color: var(--text); cursor: pointer;
   }
   .qty-value { font-size: 12px; font-weight: 600; min-width: 12px; text-align: center; }
+  .qty-input {
+    width: 30px; font-size: 12px; font-weight: 600; text-align: center;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 5px;
+    color: var(--text); padding: 2px 0; font-family: 'Inter', sans-serif;
+  }
+  .qty-input:focus { outline: 1px solid var(--teal); border-color: var(--teal); }
+  .qty-input::-webkit-outer-spin-button,
+  .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .qty-input[type="number"] { -moz-appearance: textfield; }
+  .qty-input:disabled { opacity: 0.55; cursor: not-allowed; }
 
   .btn-add {
     display: flex; align-items: center; gap: 6px; background: var(--teal); color: #0B1613;

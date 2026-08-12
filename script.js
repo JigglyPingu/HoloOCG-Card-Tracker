@@ -2076,12 +2076,15 @@
   }
 
   function getFiltered() {
+    const hasQuery = !!query.trim();
     return getAllCards().filter((c) => {
-      if (activeSet !== "All" && cardSet(c) !== activeSet) return false;
+      // While actively searching, search across every set instead of just
+      // the currently open tab — the tab selection resumes once cleared.
+      if (!hasQuery && activeSet !== "All" && cardSet(c) !== activeSet) return false;
       if (rarityFilter !== "All" && c.rarity !== rarityFilter) return false;
       if (ownFilter === "Owned" && !isOwned(c.number)) return false;
       if (ownFilter === "Missing" && isOwned(c.number)) return false;
-      if (query.trim()) {
+      if (hasQuery) {
         const q = query.trim().toLowerCase();
         const enName = ENGLISH_NAMES[c.name] || "";
         const nick = NICKNAMES[c.name] || "";
@@ -2159,6 +2162,11 @@
     contentEl.querySelectorAll("[data-qty-down]").forEach((btn) => {
       btn.addEventListener("click", (e) => { e.stopPropagation(); changeQty(btn.dataset.qtyDown, -1); });
     });
+    contentEl.querySelectorAll("[data-qty-input]").forEach((el) => {
+      el.addEventListener("click", (e) => e.stopPropagation());
+      el.addEventListener("change", (e) => { e.stopPropagation(); setQty(el.dataset.qtyInput, el.value); });
+      el.addEventListener("keydown", (e) => { if (e.key === "Enter") el.blur(); });
+    });
     contentEl.querySelectorAll("[data-delete-custom]").forEach((btn) => {
       btn.addEventListener("click", (e) => { e.stopPropagation(); deleteCustomCard(btn.dataset.deleteCustom); });
     });
@@ -2197,7 +2205,7 @@
                   <button class="qty-btn" data-qty-down="${card.number}">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                   </button>
-                  <span class="qty-value">${qty}</span>
+                  <input type="number" class="qty-input" data-qty-input="${card.number}" value="${qty}" min="0" inputmode="numeric" ${canEdit ? "" : "disabled"} />
                   <button class="qty-btn" data-qty-up="${card.number}">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                   </button>
@@ -2228,6 +2236,18 @@
     entry.qty = Math.max(1, (entry.qty || 1) + delta);
     entry.owned = true;
     ownership[number] = entry;
+    saveBinderData();
+    renderAll();
+  }
+
+  function setQty(number, value) {
+    if (!canEdit) return;
+    const n = Math.max(0, Math.floor(Number(value)) || 0);
+    if (n === 0) {
+      ownership[number] = { owned: false, qty: 0 };
+    } else {
+      ownership[number] = { owned: true, qty: n };
+    }
     saveBinderData();
     renderAll();
   }
@@ -2310,8 +2330,18 @@
   }
 
   // ---- Wiring ----
-  document.getElementById("searchInput").addEventListener("input", (e) => {
+  const searchInputEl = document.getElementById("searchInput");
+  const searchClearBtn = document.getElementById("searchClearBtn");
+  searchInputEl.addEventListener("input", (e) => {
     query = e.target.value;
+    searchClearBtn.style.display = query ? "flex" : "none";
+    renderContent();
+  });
+  searchClearBtn.addEventListener("click", () => {
+    query = "";
+    searchInputEl.value = "";
+    searchClearBtn.style.display = "none";
+    searchInputEl.focus();
     renderContent();
   });
   document.getElementById("rarityFilter").addEventListener("change", (e) => {
@@ -2393,6 +2423,22 @@
     URL.revokeObjectURL(url);
   }
   document.getElementById("exportBackupBtn").addEventListener("click", exportBackup);
+
+  // ---- Stats show/hide toggle (persisted per device; hidden by default) ----
+  const STATS_VISIBLE_KEY = "oshi-binder-stats-visible";
+  const statsRowEl = document.getElementById("statsRow");
+  const statsToggleBtn = document.getElementById("statsToggleBtn");
+  function setStatsVisible(visible) {
+    statsRowEl.style.display = visible ? "flex" : "none";
+    statsToggleBtn.classList.toggle("active", visible);
+    try { localStorage.setItem(STATS_VISIBLE_KEY, visible ? "1" : "0"); } catch (e) {}
+  }
+  statsToggleBtn.addEventListener("click", () => {
+    setStatsVisible(statsRowEl.style.display === "none");
+  });
+  let statsInitiallyVisible = false;
+  try { statsInitiallyVisible = localStorage.getItem(STATS_VISIBLE_KEY) === "1"; } catch (e) {}
+  setStatsVisible(statsInitiallyVisible);
 
   // ---- Init ----
   setSyncStatus("pending", "Connecting…");
