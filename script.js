@@ -1374,6 +1374,7 @@
 
   const CARD_IMAGES = {
     // Filled in from JPingu's own saved scans — 13 previously missing Set 8 cards
+    "hBP08-043": "hBP08-043_0.webp",
     "hBP08-097": "hBP08-097_0.webp",
     "hBP08-028": "hBP08-028_0.webp",
     "hBP08-042": "hBP08-042_0.webp",
