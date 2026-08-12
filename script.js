@@ -590,7 +590,6 @@
     { number: "hSD07-002", name: "不知火フレア", type: "ホロメン", rarity: "C", color: "黄" },
     { number: "hBP01-114", name: "石の斧", type: "サポート・ツール", rarity: "C", color: "無" },
     { number: "hBP01-126", name: "座員", type: "サポート・ファン", rarity: "C", color: "無" },
-    { number: "hBP05-044-P2", name: "猫又おかゆ", type: "ホロメン", rarity: "R", color: "青" },
     { number: "hY01-007", name: "白エール", type: "エール", rarity: "SY", color: "白" },
     { number: "hY02-006", name: "緑エール", type: "エール", rarity: "SY", color: "緑" },
     { number: "hY03-009", name: "赤エール", type: "エール", rarity: "SY", color: "赤" },
@@ -1381,6 +1380,21 @@
   }
 
   const CARD_IMAGES = {
+    // Filled in from JPingu's EN-art scans — hSD03/04 shared reprints + hSD12 (14 total)
+    "hSD03-002": "hSD03-002_0.webp",
+    "hSD04-002": "hSD04-002_0.webp",
+    "hSD12-007": "hSD12-007_0.webp",
+    "hSD12-016": "hSD12-016_0.webp",
+    "hSD12-009": "hSD12-009_0.webp",
+    "hSD12-004": "hSD12-004_0.webp",
+    "hSD12-010": "hSD12-010_0.webp",
+    "hSD12-008": "hSD12-008_0.webp",
+    "hSD12-011": "hSD12-011_0.webp",
+    "hSD12-006": "hSD12-006_0.webp",
+    "hSD12-002": "hSD12-002_0.webp",
+    "hSD12-005": "hSD12-005_0.webp",
+    "hSD12-012": "hSD12-012_0.webp",
+    "hSD12-001": "hSD12-001_0.webp",
     // Filled in from JPingu's EN-art scans — 35 previously missing Set 6 cards
     "hBP06-031": "hBP06-031_0.webp",
     "hBP06-044": "hBP06-044_0.webp",
