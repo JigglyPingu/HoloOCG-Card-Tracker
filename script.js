@@ -1373,6 +1373,20 @@
   }
 
   const CARD_IMAGES = {
+    // Filled in from JPingu's own saved scans — 13 previously missing Set 8 cards
+    "hBP08-097": "hBP08-097_0.webp",
+    "hBP08-028": "hBP08-028_0.webp",
+    "hBP08-042": "hBP08-042_0.webp",
+    "hBP08-044": "hBP08-044_0.webp",
+    "hBP08-045": "hBP08-045_0.webp",
+    "hBP08-046": "hBP08-046_0.webp",
+    "hBP08-054": "hBP08-054_0.webp",
+    "hBP08-076": "hBP08-076_0.webp",
+    "hBP08-088": "hBP08-088_0.webp",
+    "hBP08-090": "hBP08-090_0.webp",
+    "hBP08-093": "hBP08-093_0.webp",
+    "hBP08-096": "hBP08-096_0.webp",
+    "hBP08-084": "hBP08-084_0.webp",
     "hSD11-001": "hSD11-001_0.webp",
     "hSD11-003": "hSD11-003_0.webp",
     "hSD11-004": "hSD11-004_0.webp",
