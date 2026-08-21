@@ -3010,6 +3010,15 @@
   try { statsInitiallyVisible = localStorage.getItem(STATS_VISIBLE_KEY) === "1"; } catch (e) {}
   setStatsVisible(statsInitiallyVisible);
 
+  // ---- Back to top ----
+  const backToTopBtn = document.getElementById("backToTopBtn");
+  window.addEventListener("scroll", () => {
+    backToTopBtn.classList.toggle("visible", window.scrollY > 400);
+  });
+  backToTopBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
   // ---- Init ----
   setSyncStatus("pending", "Connecting…");
   loadNameSheet();
