@@ -2790,12 +2790,14 @@
   ];
 
   function familyRank(setCode) {
-    if (/^hBP/.test(setCode)) return 0; // all booster packs first
+    if (/^hBP/.test(setCode) || setCode === "hEB01") return 0; // all booster packs first
     if (/^hSD/.test(setCode)) return 1; // then all starter decks
     return 2; // everything else (Yell, promos, etc.)
   }
 
   function trailingNumber(setCode) {
+    // hEB01 sits between hBP08 and the upcoming hBP09 in release order
+    if (setCode === "hEB01") return 8.5;
     const m = setCode.match(/(\d+)$/);
     return m ? parseInt(m[1], 10) : -1;
   }
