@@ -2600,7 +2600,7 @@
     contentEl.innerHTML = `<div class="grid">${filtered.map(renderPocket).join("")}</div>`;
 
     contentEl.querySelectorAll("[data-toggle-own]").forEach((el) => {
-      el.addEventListener("click", () => toggleOwned(el.dataset.toggleOwn));
+      el.addEventListener("click", (e) => { e.stopPropagation(); toggleOwned(el.dataset.toggleOwn); });
     });
     contentEl.querySelectorAll("[data-qty-up]").forEach((btn) => {
       btn.addEventListener("click", (e) => { e.stopPropagation(); changeQty(btn.dataset.qtyUp, 1); });
@@ -2619,6 +2619,9 @@
     contentEl.querySelectorAll("[data-note-btn]").forEach((btn) => {
       btn.addEventListener("click", (e) => { e.stopPropagation(); openNoteModal(btn.dataset.noteBtn); });
     });
+    contentEl.querySelectorAll("[data-open-detail]").forEach((el) => {
+      el.addEventListener("click", () => openDetailModal(el.dataset.openDetail));
+    });
   }
 
   function renderPocket(card) {
@@ -2633,7 +2636,7 @@
 
     return `
       <div class="pocket-wrap ${isFoil ? "foil" : ""} ${owned ? "owned" : "missing"}">
-        <div class="pocket ${owned ? "" : "missing"} ${canEdit ? "" : "readonly"}">
+        <div class="pocket ${owned ? "" : "missing"} ${canEdit ? "" : "readonly"}" data-open-detail="${card.number}">
           <div class="pocket-top-actions">
             ${custom && canEdit ? `
               <button class="pocket-delete" data-delete-custom="${card.number}" title="Remove this card">
@@ -2682,8 +2685,10 @@
 
   function toggleOwned(number) {
     if (!canEdit) return;
-    const current = isOwned(number);
-    ownership[number] = { owned: !current, qty: current ? 0 : 1 };
+    const current = ownership[number] || { owned: false, qty: 0 };
+    // Toggling off keeps the last known quantity instead of zeroing it out,
+    // so an accidental uncheck + re-check restores where it left off.
+    ownership[number] = { owned: !current.owned, qty: current.qty || 1 };
     saveBinderData();
     renderAll();
   }
@@ -2761,21 +2766,73 @@
   function openNoteModal(number) {
     noteModalNumber = number;
     const textEl = document.getElementById("noteText");
-    const labelEl = document.getElementById("noteFieldLabel");
     const saveBtn = document.getElementById("saveNoteBtn");
     textEl.value = notes[number] || "";
     textEl.disabled = !canEdit;
+    textEl.placeholder = canEdit ? "Add a note…" : "No note yet.";
     saveBtn.style.display = canEdit ? "" : "none";
-    labelEl.textContent = canEdit
-      ? 'Where are your copies? (e.g. "3 at hBP03, 5 at hBP08")'
-      : "Note from JPingu";
-    document.getElementById("noteModalTitle").textContent = `${number} — notes`;
+    document.getElementById("noteModalTitle").textContent = `${number} — Notes`;
     document.getElementById("noteOverlay").classList.add("open");
     if (canEdit) textEl.focus();
   }
   function closeNoteModal() {
     document.getElementById("noteOverlay").classList.remove("open");
     noteModalNumber = null;
+  }
+
+  const COLOR_LABELS = {
+    "白": "White", "緑": "Green", "赤": "Red", "青": "Blue",
+    "紫": "Purple", "黄": "Yellow", "無": "Colorless", "多": "Multi", "青赤": "Blue / Red",
+  };
+
+  let detailModalNumber = null;
+  function openDetailModal(number) {
+    const card = getAllCards().find((c) => c.number === number);
+    if (!card) return;
+    detailModalNumber = number;
+
+    const imgFile = CARD_IMAGES[number];
+    document.getElementById("detailImgWrap").innerHTML = imgFile
+      ? `<img src="images/${imgFile}" alt="${escapeHtml(card.name)}" onerror="this.closest('.detail-img-wrap').style.display='none'">`
+      : "";
+    document.getElementById("detailImgWrap").style.display = imgFile ? "" : "none";
+
+    document.getElementById("detailModalTitle").textContent = number;
+    document.getElementById("detailNameJp").textContent = card.name;
+    const enName = ENGLISH_NAMES[card.name] || "";
+    const detailEnEl = document.getElementById("detailNameEn");
+    detailEnEl.textContent = enName;
+    detailEnEl.style.display = enName ? "" : "none";
+
+    const colorLabel = COLOR_LABELS[card.color] || card.color;
+    const rows = [
+      ["Set Code", card.number],
+      ["Type", card.type],
+      ["Rarity", card.rarity],
+      ["Color", colorLabel],
+    ];
+    document.getElementById("detailRows").innerHTML = rows.map(([label, value]) => `
+      <div class="detail-row">
+        <span class="detail-row-label">${escapeHtml(label)}</span>
+        <span class="detail-row-value">${escapeHtml(value)}</span>
+      </div>
+    `).join("");
+
+    const note = notes[number] || "";
+    const notesTextEl = document.getElementById("detailNotesText");
+    notesTextEl.textContent = note || "No note yet.";
+    notesTextEl.className = "detail-notes-text" + (note ? "" : " empty");
+
+    const editBtn = document.getElementById("detailEditNoteBtn");
+    const showEditBtn = canEdit || !!note;
+    editBtn.style.display = showEditBtn ? "" : "none";
+    editBtn.textContent = canEdit ? "Edit note" : "View note";
+
+    document.getElementById("detailOverlay").classList.add("open");
+  }
+  function closeDetailModal() {
+    document.getElementById("detailOverlay").classList.remove("open");
+    detailModalNumber = null;
   }
 
   function resetAddCardForm() {
@@ -2865,6 +2922,17 @@
     if (!noteModalNumber) return;
     setNote(noteModalNumber, document.getElementById("noteText").value);
     closeNoteModal();
+  });
+
+  document.getElementById("closeDetailBtn").addEventListener("click", closeDetailModal);
+  document.getElementById("detailOverlay").addEventListener("click", (e) => {
+    if (e.target.id === "detailOverlay") closeDetailModal();
+  });
+  document.getElementById("detailEditNoteBtn").addEventListener("click", () => {
+    if (!detailModalNumber) return;
+    const number = detailModalNumber;
+    closeDetailModal();
+    openNoteModal(number);
   });
 
   // ---- Auth (sign-in controls edit access; reading never requires it) ----
