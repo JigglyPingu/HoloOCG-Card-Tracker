@@ -2345,7 +2345,9 @@
 
   let ownership = {};
   let customCards = [];
+  let notes = {};
   const CUSTOM_CARDS_KEY = "oshi-binder-custom-cards";
+  const NOTES_KEY = "oshi-binder-notes";
   let activeSet = "All";
   let query = "";
   let rarityFilter = "All";
@@ -2363,9 +2365,11 @@
           const data = snap.data();
           ownership = data.ownership || {};
           customCards = data.customCards || [];
+          notes = data.notes || {};
         } else {
           ownership = {};
           customCards = [];
+          notes = {};
         }
         cacheLocally();
         setSyncStatus("ok", snap.metadata.hasPendingWrites ? "Saving…" : "Synced");
@@ -2403,12 +2407,19 @@
     } catch (e) {
       customCards = [];
     }
+    try {
+      const rawNotes = localStorage.getItem(NOTES_KEY);
+      notes = rawNotes ? JSON.parse(rawNotes) : {};
+    } catch (e) {
+      notes = {};
+    }
   }
 
   function cacheLocally() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(ownership));
       localStorage.setItem(CUSTOM_CARDS_KEY, JSON.stringify(customCards));
+      localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
     } catch (e) {
       // best-effort; ignore
     }
@@ -2429,7 +2440,7 @@
     clearTimeout(saveTimer);
     saveTimer = setTimeout(async () => {
       try {
-        const payload = { ownership, customCards, updatedAt: Date.now() };
+        const payload = { ownership, customCards, notes, updatedAt: Date.now() };
         await setDoc(BINDER_DOC_REF, payload);
         // Rolling daily backup — one doc per calendar day, overwritten with
         // the latest state each time something saves that day. Older days
@@ -2605,6 +2616,9 @@
     contentEl.querySelectorAll("[data-delete-custom]").forEach((btn) => {
       btn.addEventListener("click", (e) => { e.stopPropagation(); deleteCustomCard(btn.dataset.deleteCustom); });
     });
+    contentEl.querySelectorAll("[data-note-btn]").forEach((btn) => {
+      btn.addEventListener("click", (e) => { e.stopPropagation(); openNoteModal(btn.dataset.noteBtn); });
+    });
   }
 
   function renderPocket(card) {
@@ -2614,15 +2628,24 @@
     const qty = getQty(card.number);
     const custom = isCustomCard(card.number);
     const imgFile = CARD_IMAGES[card.number];
+    const hasNote = !!notes[card.number];
+    const showNoteBtn = canEdit || hasNote;
 
     return `
       <div class="pocket-wrap ${isFoil ? "foil" : ""} ${owned ? "owned" : "missing"}">
         <div class="pocket ${owned ? "" : "missing"} ${canEdit ? "" : "readonly"}">
-          ${custom && canEdit ? `
-            <button class="pocket-delete" data-delete-custom="${card.number}" title="Remove this card">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-          ` : ""}
+          <div class="pocket-top-actions">
+            ${custom && canEdit ? `
+              <button class="pocket-delete" data-delete-custom="${card.number}" title="Remove this card">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            ` : ""}
+            ${showNoteBtn ? `
+              <button class="pocket-note-btn ${hasNote ? "has-note" : ""}" data-note-btn="${card.number}" title="${hasNote ? "View note" : "Add a note"}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"></path><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="13" y2="17"></line></svg>
+              </button>
+            ` : ""}
+          </div>
           ${imgFile ? `<div class="pocket-img"><img src="images/${imgFile}" alt="${escapeHtml(card.name)}" loading="lazy" onerror="this.closest('.pocket-img').remove()"></div>` : ""}
           <div class="pocket-meta">
             <span class="dot" style="background:${dot}; box-shadow:0 0 6px ${dot};"></span>
@@ -2695,6 +2718,18 @@
     renderAll();
   }
 
+  function setNote(number, text) {
+    if (!canEdit) return; // only the signed-in account may edit notes
+    const trimmed = text.trim();
+    if (trimmed) {
+      notes[number] = trimmed;
+    } else {
+      delete notes[number];
+    }
+    saveBinderData();
+    renderAll();
+  }
+
   function populateAddCardSuggestions() {
     const types = Array.from(new Set(getAllCards().map((c) => c.type)));
     const rarities = Array.from(new Set(getAllCards().map((c) => c.rarity)));
@@ -2719,6 +2754,28 @@
 
   function closeAddCardModal() {
     document.getElementById("addCardOverlay").classList.remove("open");
+  }
+
+  // ---- Card notes (view for everyone, edit only when signed in) ----
+  let noteModalNumber = null;
+  function openNoteModal(number) {
+    noteModalNumber = number;
+    const textEl = document.getElementById("noteText");
+    const labelEl = document.getElementById("noteFieldLabel");
+    const saveBtn = document.getElementById("saveNoteBtn");
+    textEl.value = notes[number] || "";
+    textEl.disabled = !canEdit;
+    saveBtn.style.display = canEdit ? "" : "none";
+    labelEl.textContent = canEdit
+      ? 'Where are your copies? (e.g. "3 at hBP03, 5 at hBP08")'
+      : "Note from JPingu";
+    document.getElementById("noteModalTitle").textContent = `${number} — notes`;
+    document.getElementById("noteOverlay").classList.add("open");
+    if (canEdit) textEl.focus();
+  }
+  function closeNoteModal() {
+    document.getElementById("noteOverlay").classList.remove("open");
+    noteModalNumber = null;
   }
 
   function resetAddCardForm() {
@@ -2799,6 +2856,16 @@
   document.getElementById("fNumber").addEventListener("input", updateAddCardSubmitState);
   document.getElementById("fName").addEventListener("input", updateAddCardSubmitState);
   document.getElementById("submitAddCardBtn").addEventListener("click", submitAddCard);
+
+  document.getElementById("closeNoteBtn").addEventListener("click", closeNoteModal);
+  document.getElementById("noteOverlay").addEventListener("click", (e) => {
+    if (e.target.id === "noteOverlay") closeNoteModal();
+  });
+  document.getElementById("saveNoteBtn").addEventListener("click", () => {
+    if (!noteModalNumber) return;
+    setNote(noteModalNumber, document.getElementById("noteText").value);
+    closeNoteModal();
+  });
 
   // ---- Auth (sign-in controls edit access; reading never requires it) ----
   function openAuthModal() {
