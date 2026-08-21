@@ -1467,6 +1467,7 @@
     "角巻わためのハンマー": "Hammer",
     "角巻わためのハープ": "Harp",
     "鬼神刀「阿修羅」": "Asura",
+    "サブパソコン": "Sub PC",
   };
 
   // Live-editable name mapping: pulls from a published Google Sheet CSV so
