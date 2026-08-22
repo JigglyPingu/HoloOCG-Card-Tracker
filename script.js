@@ -2850,6 +2850,12 @@
     return extra ? [cardSet(card), ...extra] : [cardSet(card)];
   }
 
+  // For a reprinted card that got a different card frame/art in the reprint
+  // product: { "hSD03-007": { "hEB01": "hSD03-007_heb01_0.webp" } } shows
+  // the alternate image only while browsing that specific tab; every other
+  // tab (including "All") still shows the card's original image.
+  const CARD_IMAGES_BY_TAB = {};
+
   // Real hOCG release order, oldest first — used only for sets outside the
   // hBP/hSD families (Yell cards, promos, etc). Unknown/future codes fall
   // back to alphabetical order after everything in this list.
@@ -3017,7 +3023,8 @@
     const dot = COLOR_HEX[card.color] || "#8D89A8";
     const qty = getQty(card.number);
     const custom = isCustomCard(card.number);
-    const imgFile = CARD_IMAGES[card.number];
+    const tabOverride = CARD_IMAGES_BY_TAB[card.number];
+    const imgFile = (tabOverride && tabOverride[activeSet]) || CARD_IMAGES[card.number];
     const hasNote = !!notes[card.number];
     const showNoteBtn = canEdit || hasNote;
 
