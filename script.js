@@ -2761,6 +2761,95 @@
     return prefix;
   }
 
+  // Cards that keep their original card number but should ALSO show up
+  // under another set's tab — e.g. hEB01's specific reprints, which reuse
+  // their original set's number rather than getting a new hEB01 number.
+  const EXTRA_TABS = {
+    "hBP01-021": ["hEB01"],
+    "hBP02-011": ["hEB01"],
+    "hBP02-016": ["hEB01"],
+    "hBP02-017": ["hEB01"],
+    "hBP04-008": ["hEB01"],
+    "hBP04-012": ["hEB01"],
+    "hBP01-026": ["hEB01"],
+    "hBP01-031": ["hEB01"],
+    "hSD05-007": ["hEB01"],
+    "hBP02-026": ["hEB01"],
+    "hBP02-027": ["hEB01"],
+    "hBP01-039": ["hEB01"],
+    "hBP01-041": ["hEB01"],
+    "hBP03-023": ["hEB01"],
+    "hBP05-016": ["hEB01"],
+    "hSD06-005": ["hEB01"],
+    "hBP01-050": ["hEB01"],
+    "hBP01-051": ["hEB01"],
+    "hBP01-054": ["hEB01"],
+    "hBP01-055": ["hEB01"],
+    "hBP02-022": ["hEB01"],
+    "hBP02-023": ["hEB01"],
+    "hBP03-029": ["hEB01"],
+    "hBP03-034": ["hEB01"],
+    "hSD02-006": ["hEB01"],
+    "hSD02-007": ["hEB01"],
+    "hBP02-028": ["hEB01"],
+    "hSD09-002": ["hEB01"],
+    "hBP02-033": ["hEB01"],
+    "hBP01-070": ["hEB01"],
+    "hBP01-060": ["hEB01"],
+    "hBP01-061": ["hEB01"],
+    "hBP01-065": ["hEB01"],
+    "hBP03-036": ["hEB01"],
+    "hBP01-067": ["hEB01"],
+    "hBP01-074": ["hEB01"],
+    "hBP03-044": ["hEB01"],
+    "hBP01-081": ["hEB01"],
+    "hSD03-007": ["hEB01"],
+    "hBP05-045": ["hEB01"],
+    "hBP04-047": ["hEB01"],
+    "hBP01-090": ["hEB01"],
+    "hBP01-094": ["hEB01"],
+    "hBP03-050": ["hEB01"],
+    "hBP03-059": ["hEB01"],
+    "hBP03-060": ["hEB01"],
+    "hSD04-007": ["hEB01"],
+    "hBP02-058": ["hEB01"],
+    "hBP02-059": ["hEB01"],
+    "hBP02-067": ["hEB01"],
+    "hBP05-060": ["hEB01"],
+    "hBP04-071": ["hEB01"],
+    "hBP04-072": ["hEB01"],
+    "hBP03-065": ["hEB01"],
+    "hSD08-007": ["hEB01"],
+    "hBP03-070": ["hEB01"],
+    "hBP04-085": ["hEB01"],
+    "hSD01-018": ["hEB01"],
+    "hBP01-104": ["hEB01"],
+    "hBP05-074": ["hEB01"],
+    "hBP01-107": ["hEB01"],
+    "hBP02-079": ["hEB01"],
+    "hBP03-088": ["hEB01"],
+    "hBP05-080": ["hEB01"],
+    "hSD06-011": ["hEB01"],
+    "hBP01-118": ["hEB01"],
+    "hBP02-095": ["hEB01"],
+    "hBP04-105": ["hEB01"],
+    "hBP01-028": ["hBP08"],
+    "hBP01-056": ["hBP08"],
+    "hBP01-062": ["hBP08"],
+    "hBP02-018": ["hBP08"],
+    "hBP02-061": ["hBP08"],
+    "hBP03-037": ["hBP08"],
+    "hBP03-040": ["hBP08"],
+    "hBP03-080": ["hBP08"],
+    "hBP04-028": ["hBP08"],
+    "hSD11-007": ["hBP08"],
+  };
+
+  function cardTabs(card) {
+    const extra = EXTRA_TABS[card.number];
+    return extra ? [cardSet(card), ...extra] : [cardSet(card)];
+  }
+
   // Real hOCG release order, oldest first — used only for sets outside the
   // hBP/hSD families (Yell cards, promos, etc). Unknown/future codes fall
   // back to alphabetical order after everything in this list.
@@ -2824,7 +2913,7 @@
     return getAllCards().filter((c) => {
       // While actively searching, search across every set instead of just
       // the currently open tab — the tab selection resumes once cleared.
-      if (!hasQuery && activeSet !== "All" && cardSet(c) !== activeSet) return false;
+      if (!hasQuery && activeSet !== "All" && !cardTabs(c).includes(activeSet)) return false;
       if (rarityFilter !== "All" && c.rarity !== rarityFilter) return false;
       if (ownFilter === "Owned" && !isOwned(c.number)) return false;
       if (ownFilter === "Missing" && isOwned(c.number)) return false;
@@ -2859,7 +2948,7 @@
     tabsEl.innerHTML = sets.map((s) => {
       let progress = "";
       if (s !== "All") {
-        const inSet = getAllCards().filter((c) => cardSet(c) === s);
+        const inSet = getAllCards().filter((c) => cardTabs(c).includes(s));
         const owned = inSet.filter((c) => isOwned(c.number)).length;
         progress = `<span class="tab-progress">${owned}/${inSet.length}</span>`;
       }
