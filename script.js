@@ -490,15 +490,6 @@
 
 
     // hBP05 — ブースターパック「エンチャントレガリア」(Set 5) — 214 of 217 confirmed (1 dup already in DB)
-    { number: "hBP01-032", name: "アキ・ローゼンタール", type: "ホロメン", rarity: "C", color: "緑" },
-    { number: "hBP01-038", name: "兎田ぺこら", type: "ホロメン", rarity: "C", color: "緑" },
-    { number: "hBP01-052", name: "アイラニ・イオフィフティーン", type: "ホロメン", rarity: "C", color: "緑" },
-    { number: "hBP01-068", name: "尾丸ポルカ", type: "ホロメン", rarity: "C", color: "赤" },
-    { number: "hBP01-076", name: "星街すいせい", type: "ホロメン", rarity: "C", color: "青" },
-    { number: "hBP01-082", name: "こぼ・かなえる", type: "ホロメン", rarity: "C", color: "青" },
-    { number: "hBP02-008", name: "白上フブキ", type: "ホロメン", rarity: "C", color: "白" },
-    { number: "hBP02-014", name: "白銀ノエル", type: "ホロメン", rarity: "C", color: "白" },
-    { number: "hBP02-065", name: "ネリッサ・レイヴンクロフト", type: "ホロメン", rarity: "C", color: "紫" },
     { number: "hBP05-001", name: "白銀ノエル", type: "推しホロメン", rarity: "OSR", color: "白" },
     { number: "hBP05-002", name: "アイラニ・イオフィフティーン", type: "推しホロメン", rarity: "OSR", color: "緑" },
     { number: "hBP05-003", name: "尾丸ポルカ", type: "推しホロメン", rarity: "OSR", color: "赤" },
@@ -588,8 +579,6 @@
     { number: "hSD03-002", name: "猫又おかゆ", type: "ホロメン", rarity: "C", color: "青" },
     { number: "hSD04-002", name: "癒月ちょこ", type: "ホロメン", rarity: "C", color: "紫" },
     { number: "hSD07-002", name: "不知火フレア", type: "ホロメン", rarity: "C", color: "黄" },
-    { number: "hBP01-114", name: "石の斧", type: "サポート・ツール", rarity: "C", color: "無" },
-    { number: "hBP01-126", name: "座員", type: "サポート・ファン", rarity: "C", color: "無" },
     { number: "hY01-007", name: "白エール", type: "エール", rarity: "SY", color: "白" },
     { number: "hY02-006", name: "緑エール", type: "エール", rarity: "SY", color: "緑" },
     { number: "hY03-009", name: "赤エール", type: "エール", rarity: "SY", color: "赤" },
@@ -903,9 +892,6 @@
     { number: "hBP02-080", name: "秘密結社holoX", type: "サポート・イベント・LIMITED", rarity: "U", color: "無" },
     { number: "hBP02-088", name: "森カリオペの鎌", type: "サポート・ツール", rarity: "U", color: "無" },
     { number: "hBP02-095", name: "ドクロくん", type: "サポート・マスコット", rarity: "C", color: "無" },
-    { number: "hY01-001", name: "白エール", type: "エール", rarity: "C", color: "白" },
-    { number: "hY02-001", name: "緑エール", type: "エール", rarity: "C", color: "緑" },
-    { number: "hY03-001", name: "赤エール", type: "エール", rarity: "C", color: "赤" },
     { number: "hY01-003", name: "白エール", type: "エール", rarity: "SY", color: "白" },
     { number: "hY02-002", name: "緑エール", type: "エール", rarity: "SY", color: "緑" },
     { number: "hY03-002", name: "赤エール", type: "エール", rarity: "SY", color: "赤" },
@@ -1027,9 +1013,6 @@
     { number: "hBP01-116", name: "うぱお", type: "サポート・マスコット", rarity: "C", color: "無" },
     { number: "hBP01-126", name: "座員", type: "サポート・ファン", rarity: "C", color: "無" },
     { number: "hSD01-020", name: "ホロリスの輪", type: "サポート・イベント", rarity: "C", color: "無" },
-    { number: "hY01-001", name: "白エール", type: "エール", rarity: "C", color: "白" },
-    { number: "hY02-001", name: "緑エール", type: "エール", rarity: "C", color: "緑" },
-    { number: "hY03-001", name: "赤エール", type: "エール", rarity: "C", color: "赤" },
 
     // From ogbajoj hOCG translation sheet — hBP01 pass, 1 gap filled
     { number: "hBP01-041", name: "兎田ぺこら", type: "ホロメン", rarity: "U", color: "緑" },
