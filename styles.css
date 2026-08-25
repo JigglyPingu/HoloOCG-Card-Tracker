@@ -249,6 +249,19 @@
   }
   .detail-row-label { color: var(--text-muted); }
   .detail-row-value { color: var(--text); font-weight: 600; text-align: right; }
+  .detail-effect-section { border-top: 1px solid var(--border); padding-top: 14px; margin-bottom: 4px; }
+  .detail-effect-toggle {
+    width: 100%; display: flex; align-items: center; justify-content: space-between;
+    background: transparent; border: none; color: var(--text-muted); font-size: 13px;
+    cursor: pointer; padding: 0; font-family: 'Inter', sans-serif; font-weight: 600;
+  }
+  .detail-effect-toggle:hover { color: var(--teal); }
+  .detail-effect-toggle svg { transition: transform 0.15s ease; }
+  .detail-effect-toggle.open svg { transform: rotate(180deg); }
+  .detail-effect-text {
+    font-size: 12.5px; color: var(--text); line-height: 1.55; white-space: pre-wrap;
+    margin-top: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px;
+  }
   .detail-notes-section { border-top: 1px solid var(--border); padding-top: 14px; }
   .detail-notes-text {
     font-size: 13px; color: var(--text); line-height: 1.5; white-space: pre-wrap;
