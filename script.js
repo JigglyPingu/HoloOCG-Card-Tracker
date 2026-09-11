@@ -1286,8 +1286,7 @@
     { number: "hBP09-098", name: "スイカバブル", type: "サポート・イベント・LIMITED", rarity: "C", color: "無" },
     { number: "hBP09-099", name: "スピード違反", type: "サポート・イベント", rarity: "C", color: "無" },
     { number: "hBP09-100", name: "ノエルの特盛牛丼", type: "サポート・イベント", rarity: "U", color: "無" },
-    { number: "hBP09-101", name: "バカ!変態!うるさーい!
-もう知らなーい!", type: "サポート・イベント・LIMITED", rarity: "U", color: "無" },
+    { number: "hBP09-101", name: "バカ!変態!うるさーい!\nもう知らなーい!", type: "サポート・イベント・LIMITED", rarity: "U", color: "無" },
     { number: "hBP09-102", name: "ばんちょーダンス", type: "サポート・イベント・LIMITED", rarity: "C", color: "無" },
     { number: "hBP09-103", name: "変な動き", type: "サポート・イベント・LIMITED", rarity: "C", color: "無" },
     { number: "hBP09-104", name: "ホロライブ体力王決定戦", type: "サポート・イベント・LIMITED", rarity: "C", color: "無" },
